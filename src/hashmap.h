@@ -8,3 +8,8 @@ typedef struct {
     int count;
     hm_item** items;
 } hm_hashmap;
+
+hm_hashmap* hm_new();
+static hm_item* hm_new_item(const char* key, const char* value);
+static void hm_free_item(hm_item* item);
+static void hm_free_hashmap(hm_hashmap* hashmap);
