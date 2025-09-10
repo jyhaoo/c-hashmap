@@ -3,6 +3,9 @@
 
 #include "hashmap.h"
 
+#define HM_PRIME_1 151
+#define HM_PRIME_2 163
+
 static hm_item* hm_new_item(const char* key, const char* value) {
     hm_item* item = malloc(sizeof(hm_item));
     item->key = strdup(key);
@@ -41,4 +44,10 @@ static int hm_hash(const char* key, const int a, const int m) {
         hash = hash % m;
     }
     return (int)hash;
+}
+
+static int hm_get_hash(const char*key, const int num_buckets, const int attempt) {
+    const int hash_a = hm_hash(key, HM_PRIME_1, num_buckets);
+    const int hash_b = hm_hash(key, HM_PRIME_2, num_buckets);
+    return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
 }
