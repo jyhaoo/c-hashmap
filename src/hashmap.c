@@ -32,3 +32,13 @@ static void hm_free_hashmap(hm_hashmap* hashmap) {
         }
     }
 }
+
+static int hm_hash(const char* key, const int a, const int m) {
+    long hash = 0;
+    const int key_len = (int)strlen(key);
+    for (int i = 0; i < key_len; i++) {
+        hash += (long)pow(a, key_len - (i + 1)) * key[i];
+        hash = hash % m;
+    }
+    return (int)hash;
+}
