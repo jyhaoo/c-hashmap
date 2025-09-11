@@ -16,3 +16,4 @@ static void hm_free_hashmap(hm_hashmap* hashmap);
 static int hm_hash(const char* key,const int a, const int size);
 static int hm_get_hash(const char* key, const int num_buckets, const int attempt);
 void hm_insert(hm_hashmap* hashmap, const char* key, const char* value);
+char* hm_search(hm_hashmap* hashmap, const char* key);

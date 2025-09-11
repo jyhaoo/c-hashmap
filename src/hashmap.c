@@ -65,3 +65,18 @@ void hm_insert(hm_hashmap* hashmap, const char* key, const char* value) {
     hashmap->items[index] = item;
     hashmap->count++;
 }
+
+char* hm_search(hm_hashmap* hashmap, const char* key) {
+    int index = hm_get_hash(key, hashmap->size, 0);
+    hm_item* item = hashmap->items[index];
+    int i = 1;
+    while (item != NULL) {
+        if (strcmp(item->key, key) == 0) {
+            return item-> value;
+        }
+        index = hm_get_hash(key, hashmap->size, i);
+        item = hashmap->items[index];
+        i++;
+    }
+    return NULL;
+}
