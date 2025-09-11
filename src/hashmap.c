@@ -51,3 +51,17 @@ static int hm_get_hash(const char*key, const int num_buckets, const int attempt)
     const int hash_b = hm_hash(key, HM_PRIME_2, num_buckets);
     return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
 }
+
+void hm_insert(hm_hashmap* hashmap, const char* key, const char* value) {
+    hm_item* item = hm_new_item(key, value);
+    int index = hm_get_hash(item->key, hashmap->size, 0);
+    hm_item* current_item = hashmap->items[index];
+    int i = 1;
+    while (current_item != NULL) {
+        index = hm_get_hash(item->key, hashmap->size, i);
+        current_item = hashmap->items[index];
+        i++;
+    }
+    hashmap->items[index] = item;
+    hashmap->count++;
+}
