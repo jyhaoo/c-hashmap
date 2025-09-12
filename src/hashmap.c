@@ -80,3 +80,23 @@ char* hm_search(hm_hashmap* hashmap, const char* key) {
     }
     return NULL;
 }
+
+static hm_item HM_DELETED_ITEM = { NULL, NULL };
+
+void hm_delete(hm_hashmap* hashmap, const char* key) {
+    int index = hm_get_hash(key, hashmap->size, 0);
+    hm_item* item = hashmap->items[index];
+    int i = 1;
+    while (item != NULL) {
+        if (item != &HM_DELETED_ITEM) {
+            if (strcmp(item->key, key) ==0) {
+                hm_free_item(item);
+                hashmap->items[index] = &HM_DELETED_ITEM;
+            }
+        }
+        index = hm_get_hash(key, hashmap->size, i);
+        item = hashmap->items[index];
+        i++;
+    }
+    hashmap->count--;
+}
