@@ -4,6 +4,6 @@
 
 int main() {
     hm_hashmap* map = hm_new();
-    hm_free_hashmap(map);
+    hm_del_hashmap(map);
     return 0;
 }

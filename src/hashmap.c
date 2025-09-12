@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "hashmap.h"
 
@@ -21,17 +22,17 @@ hm_hashmap* hm_new() {
     return hashmap;
 }
 
-static void hm_free_item(hm_item* item) {
+static void hm_del_item(hm_item* item) {
     free(item->key);
     free(item->value);
     free(item);
 }
 
-static void hm_free_hashmap(hm_hashmap* hashmap) {
+void hm_del_hashmap(hm_hashmap* hashmap) {
     for (int i = 0; i < hashmap->size; i++) {
         hm_item* item = hashmap-> items[i];
         if (item != NULL) {
-            hm_free_item(item);
+            hm_del_item(item);
         }
     }
 }
@@ -90,7 +91,7 @@ void hm_delete(hm_hashmap* hashmap, const char* key) {
     while (item != NULL) {
         if (item != &HM_DELETED_ITEM) {
             if (strcmp(item->key, key) ==0) {
-                hm_free_item(item);
+                hm_del_item(item);
                 hashmap->items[index] = &HM_DELETED_ITEM;
             }
         }
