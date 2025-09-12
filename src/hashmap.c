@@ -7,6 +7,8 @@
 #define HM_PRIME_1 151
 #define HM_PRIME_2 163
 
+static hm_item HM_DELETED_ITEM = { NULL, NULL };
+
 static hm_item* hm_new_item(const char* key, const char* value) {
     hm_item* item = malloc(sizeof(hm_item));
     item->key = strdup(key);
@@ -59,6 +61,13 @@ void hm_insert(hm_hashmap* hashmap, const char* key, const char* value) {
     hm_item* current_item = hashmap->items[index];
     int i = 1;
     while (current_item != NULL) {
+        if (current_item != &HM_DELETED_ITEM) {
+            if (strcmp(current_item->key, key) == 0) {
+                hm_del_item(current_item);
+                hashmap->items[index] = item;
+                return;
+            }
+        }
         index = hm_get_hash(item->key, hashmap->size, i);
         current_item = hashmap->items[index];
         i++;
@@ -72,8 +81,10 @@ char* hm_search(hm_hashmap* hashmap, const char* key) {
     hm_item* item = hashmap->items[index];
     int i = 1;
     while (item != NULL) {
-        if (strcmp(item->key, key) == 0) {
-            return item-> value;
+        if (item != &HM_DELETED_ITEM) {
+            if (strcmp(item->key, key) == 0) {
+                return item-> value;
+            }
         }
         index = hm_get_hash(key, hashmap->size, i);
         item = hashmap->items[index];
@@ -81,8 +92,6 @@ char* hm_search(hm_hashmap* hashmap, const char* key) {
     }
     return NULL;
 }
-
-static hm_item HM_DELETED_ITEM = { NULL, NULL };
 
 void hm_delete(hm_hashmap* hashmap, const char* key) {
     int index = hm_get_hash(key, hashmap->size, 0);
