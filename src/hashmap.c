@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include "hashmap.h"
+#include "prime.h"
 
 #define HM_PRIME_1 151
 #define HM_PRIME_2 163
@@ -17,11 +18,7 @@ static hm_item* hm_new_item(const char* key, const char* value) {
 }
 
 hm_hashmap* hm_new() {
-    hm_hashmap* hashmap = malloc(sizeof(hm_hashmap));
-    hashmap->size = 26;
-    hashmap->count = 0;
-    hashmap->items = calloc((size_t)hashmap->size, sizeof(hm_item*));
-    return hashmap;
+    return hm_new_sized(26);
 }
 
 static void hm_del_item(hm_item* item) {
@@ -56,6 +53,11 @@ static int hm_get_hash(const char*key, const int num_buckets, const int attempt)
 }
 
 void hm_insert(hm_hashmap* hashmap, const char* key, const char* value) {
+    // Need to resize the hashmap when there are high rates of collision
+    const int load = hashmap->count * 100 / hashmap->size;
+    if (load > 70) {
+        hm_resize_up(hashmap);
+    }
     hm_item* item = hm_new_item(key, value);
     int index = hm_get_hash(item->key, hashmap->size, 0);
     hm_item* current_item = hashmap->items[index];
@@ -94,6 +96,10 @@ char* hm_search(hm_hashmap* hashmap, const char* key) {
 }
 
 void hm_delete(hm_hashmap* hashmap, const char* key) {
+    const int load = hashmap->count * 100 / hashmap->size;
+    if (load < 10) {
+        hm_resize_down(hashmap);
+    }
     int index = hm_get_hash(key, hashmap->size, 0);
     hm_item* item = hashmap->items[index];
     int i = 1;
@@ -109,4 +115,49 @@ void hm_delete(hm_hashmap* hashmap, const char* key) {
         i++;
     }
     hashmap->count--;
+}
+
+static hm_hashmap* hm_new_sized(const int base_size) {
+    hm_hashmap* hm = xmalloc(sizeof(hm_hashmap));
+    hm->base_size = base_size;
+
+    hm->size = next_prime(hm);
+
+    hm->count = 0;
+    hm->items = xcalloc((size_t)hm->size, sizeof(hm_item*));
+    return hm;
+}
+
+static void hm_resize(hm_hashmap* hm, const int base_size) {
+    if (base_size < 26) {
+        return;
+    }
+
+    hm_hashmap* new_hm = hm_new_sized(base_size);
+    for (int i = 0; i < hm->size; i++) {
+        hm_item* item = hm->items[i];
+        if (item != NULL && item != &HM_DELETED_ITEM) {
+            hm_insert(new_hm, item->key, item->value);
+        }
+    }
+
+    const int tmp_size = hm->size;
+    hm->size = new_hm->size;
+    new_hm->size = tmp_size;
+
+    hm_item** tmp_items = hm->items;
+    hm->items = new_hm->items;
+    new_hm->items = tmp_items;
+
+    hm_del_hashmap(new_hm);
+}
+
+static void hm_resize_up(hm_hashmap* hm) {
+    const int new_size = hm->base_size * 2;
+    hm_resize(hm, new_size);
+}
+
+static void hm_resize_down(hm_hashmap* hm) {
+    const int new_size = hm->base_size / 2;
+    rm_resize(hm, new_size);
 }
