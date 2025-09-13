@@ -118,13 +118,13 @@ void hm_delete(hm_hashmap* hashmap, const char* key) {
 }
 
 static hm_hashmap* hm_new_sized(const int base_size) {
-    hm_hashmap* hm = xmalloc(sizeof(hm_hashmap));
+    hm_hashmap* hm = malloc(sizeof(hm_hashmap));
     hm->base_size = base_size;
 
-    hm->size = next_prime(hm);
+    hm->size = next_prime(hm->size);
 
     hm->count = 0;
-    hm->items = xcalloc((size_t)hm->size, sizeof(hm_item*));
+    hm->items = calloc((size_t)hm->size, sizeof(hm_item*));
     return hm;
 }
 
@@ -159,5 +159,5 @@ static void hm_resize_up(hm_hashmap* hm) {
 
 static void hm_resize_down(hm_hashmap* hm) {
     const int new_size = hm->base_size / 2;
-    rm_resize(hm, new_size);
+    hm_resize(hm, new_size);
 }
