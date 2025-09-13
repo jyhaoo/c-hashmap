@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <math.h>
 
@@ -59,7 +60,7 @@ void hm_insert(hm_hashmap* hashmap, const char* key, const char* value) {
         hm_resize_up(hashmap);
     }
     hm_item* item = hm_new_item(key, value);
-    int index = hm_get_hash(item->key, hashmap->size, 0);
+    int index = hm_get_hash(key, hashmap->size, 0);
     hm_item* current_item = hashmap->items[index];
     int i = 1;
     while (current_item != NULL) {
@@ -70,7 +71,7 @@ void hm_insert(hm_hashmap* hashmap, const char* key, const char* value) {
                 return;
             }
         }
-        index = hm_get_hash(item->key, hashmap->size, i);
+        index = hm_get_hash(key, hashmap->size, i);
         current_item = hashmap->items[index];
         i++;
     }
@@ -121,7 +122,7 @@ static hm_hashmap* hm_new_sized(const int base_size) {
     hm_hashmap* hm = malloc(sizeof(hm_hashmap));
     hm->base_size = base_size;
 
-    hm->size = next_prime(hm->size);
+    hm->size = next_prime(base_size);
 
     hm->count = 0;
     hm->items = calloc((size_t)hm->size, sizeof(hm_item*));
